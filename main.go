@@ -1,6 +1,7 @@
 package main
 
 import (
+	"dokku-booba/danbooru"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +16,18 @@ func main() {
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
+
+	client, err := danbooru.GetClient()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	boobas, err := client.GetBooba()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Print(boobas)
 
 	router := gin.New()
 	router.Use(gin.Logger())
