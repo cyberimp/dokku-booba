@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
@@ -22,12 +23,16 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	start := time.Now()
+
 	boobas, err := client.GetBooba()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
+	end := time.Now()
 	log.Print(boobas)
+	log.Printf("took %d ms!", end.Sub(start))
 
 	router := gin.New()
 	router.Use(gin.Logger())

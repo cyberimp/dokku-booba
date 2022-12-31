@@ -55,12 +55,15 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 	}
 
 	idArr := new([]id)
-	_, err := sling.New().Get(baseUrl).QueryStruct(params).ReceiveSuccess(idArr)
-	if err != nil {
-		return nil, err
-	}
-	for _, i := range *idArr {
-		result = append(result, strconv.Itoa(i.Id))
+	for i := 0; i < 10; i++ {
+		params.Page = i
+		_, err := sling.New().Get(baseUrl).QueryStruct(params).ReceiveSuccess(idArr)
+		if err != nil {
+			return nil, err
+		}
+		for _, i := range *idArr {
+			result = append(result, strconv.Itoa(i.Id))
+		}
 	}
 
 	return result, nil
