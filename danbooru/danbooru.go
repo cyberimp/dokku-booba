@@ -5,6 +5,7 @@ import (
 	"github.com/dghubble/sling"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 const (
@@ -27,7 +28,7 @@ type (
 		apiKey string
 	}
 	id struct {
-		Id string `json:"id"`
+		Id int `json:"id"`
 	}
 )
 
@@ -59,7 +60,7 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 		return nil, err
 	}
 	for _, i := range *idArr {
-		result = append(result, i.Id)
+		result = append(result, strconv.Itoa(i.Id))
 	}
 
 	return result, nil
