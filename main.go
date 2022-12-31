@@ -30,9 +30,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	end := time.Now()
 	log.Print(boobas)
-	log.Printf("took %d ms!", end.Sub(start))
+	log.Printf("took %s !", time.Since(start))
 
 	router := gin.New()
 	router.Use(gin.Logger())
