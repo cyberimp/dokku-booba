@@ -55,7 +55,7 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 	}
 
 	idArr := new([]id)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 20; i++ {
 		params.Page = i
 		_, err := sling.New().Get(baseUrl).QueryStruct(params).ReceiveSuccess(idArr)
 		if err != nil {
