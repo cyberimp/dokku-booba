@@ -31,7 +31,7 @@ func main() {
 	}
 
 	log.Print(boobas)
-	log.Printf("took %s !", time.Since(start))
+	log.Printf("total %d boobs, took %s !", len(boobas), time.Since(start))
 
 	router := gin.New()
 	router.Use(gin.Logger())
