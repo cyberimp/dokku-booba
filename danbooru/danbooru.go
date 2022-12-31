@@ -44,7 +44,6 @@ func GetClient() (*BooruClient, error) {
 func (c *BooruClient) GetBooba() ([]string, error) {
 	var (
 		result []string
-		idArr  []id
 	)
 	params := &Query{
 		Page:   0,
@@ -54,11 +53,12 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 		ApiKey: c.apiKey,
 	}
 
+	idArr := new([]id)
 	_, err := sling.New().Get(baseUrl).QueryStruct(params).ReceiveSuccess(idArr)
 	if err != nil {
 		return nil, err
 	}
-	for _, i := range idArr {
+	for _, i := range *idArr {
 		result = append(result, i.Id)
 	}
 
