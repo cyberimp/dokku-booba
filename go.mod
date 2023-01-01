@@ -1,4 +1,4 @@
-module dokku-booba
+module github.com/cyberimp/dokku-booba
 
 go 1.17
 

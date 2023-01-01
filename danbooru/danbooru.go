@@ -10,7 +10,7 @@ import (
 
 const (
 	magicTags = "solo breasts 1girl -loli score:>50"
-	baseUrl   = "https://danbooru.donmai.us/posts.json"
+	baseUrl   = "https://danbooru.donmai.us/"
 )
 
 type (
@@ -57,7 +57,7 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 	idArr := new([]id)
 	for i := 0; i < 30; i++ {
 		params.Page = i
-		_, err := sling.New().Get(baseUrl).QueryStruct(params).ReceiveSuccess(idArr)
+		_, err := sling.New().Get(baseUrl).Path("posts.json").QueryStruct(params).ReceiveSuccess(idArr)
 		if err != nil {
 			return nil, err
 		}
