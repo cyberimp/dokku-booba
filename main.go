@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dokku-booba/danbooru"
+	"github.com/cyberimp/dokku-booba/danbooru"
 	"log"
 	"net/http"
 	"os"
