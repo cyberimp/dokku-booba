@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/cyberimp/dokku-booba/danbooru"
+	"github.com/cyberimp/dokku-booba/repo"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,11 @@ func main() {
 
 	log.Print(boobas)
 	log.Printf("total %d boobs, took %s !", len(boobas), time.Since(start))
+
+	start = time.Now()
+	r := new(repo.BoobaRepo)
+	r.InitCache(boobas)
+	log.Printf("saving cache took %s !", time.Since(start))
 
 	router := gin.New()
 	router.Use(gin.Logger())
