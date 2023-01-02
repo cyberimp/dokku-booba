@@ -39,6 +39,8 @@ func (r BoobaRepo) InitCache(content []string) {
 }
 
 func (r BoobaRepo) GetBooba() (string, error) {
+	pong, err := r.client.Ping(r.ctx).Result()
+	log.Print(pong, err)
 	res, err := r.client.LRange(r.ctx, "booba", 0, -1).Result()
 	if err != nil {
 		return "", err
