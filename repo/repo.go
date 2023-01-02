@@ -28,6 +28,8 @@ func (r BoobaRepo) InitCache(content []string) {
 
 	r.client = redis.NewClient(opt)
 
+	r.client.Del(r.ctx, "booba")
+
 	for _, booba := range content {
 		_, err := r.client.RPush(r.ctx, "booba", booba).Result()
 		if err != nil {
