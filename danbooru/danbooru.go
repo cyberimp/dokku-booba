@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -27,6 +28,15 @@ type (
 		login  string
 		apiKey string
 	}
+
+	BooruPost struct {
+		FileExt   string `json:"file_ext"`
+		Character string `json:"tag_string_character"`
+		Artist    string `json:"tag_string_artist"`
+		Copyright string `json:"tag_string_copyright"`
+		FileUrl   string `json:"file_url"`
+	}
+
 	id struct {
 		Id int `json:"id"`
 	}
@@ -67,4 +77,31 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 	}
 
 	return result, nil
+}
+
+func (c *BooruClient) GetPost(id string) (*BooruPost, error) {
+	params := &Query{
+		Login:  c.login,
+		ApiKey: c.apiKey,
+	}
+	result := new(BooruPost)
+	_, err := sling.New().Get(baseUrl).Path("posts/" + id + ".json").QueryStruct(params).ReceiveSuccess(result)
+	return result, err
+}
+
+func clearUnderscore(s string) string {
+	result := strings.Replace(s, " ", "\n", -1)
+	result = strings.Replace(result, "_", " ", -1)
+	return result
+}
+func (p *BooruPost) GetMarkdown() string {
+	artist := clearUnderscore(p.Artist)
+	copyright := clearUnderscore(p.Copyright)
+	character := clearUnderscore(p.Character)
+	result := "*Artist:* `" + artist + "`"
+	result += "\n*Origin:* `" + copyright + "`"
+	if character != "" {
+		result += "\n*Character:* `" + character + "`"
+	}
+	return result
 }
