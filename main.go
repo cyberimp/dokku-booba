@@ -85,6 +85,8 @@ func main() {
 			return
 		}
 		post := new(danbooru.BooruPost)
+		post.FileExt = "invalid"
+
 		for post.CheckExt() {
 			res, err := rep.GetBooba()
 			if err != nil {

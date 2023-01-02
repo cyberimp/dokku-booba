@@ -108,7 +108,7 @@ func (p *BooruPost) GetMarkdown() string {
 
 func (p *BooruPost) CheckExt() bool {
 	if p.FileExt == "gif" || p.FileExt == "jpg" || p.FileExt == "jpeg" || p.FileExt == "png" || p.FileExt == "mp4" {
-		return true
+		return false
 	}
-	return false
+	return true
 }
