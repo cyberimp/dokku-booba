@@ -3,7 +3,9 @@ package repo
 import (
 	"github.com/go-redis/redis/v8"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 )
 
 type BoobaRepo struct {
@@ -26,4 +28,15 @@ func (r BoobaRepo) InitCache(content []string) {
 	for _, booba := range content {
 		r.client.RPush(r.client.Context(), "booba", booba)
 	}
+}
+
+func (r BoobaRepo) GetBooba() (string, error) {
+	res, err := r.client.LRange(r.client.Context(), "booba", 0, -1).Result()
+	if err != nil {
+		return "", err
+	}
+
+	s := rand.NewSource(time.Now().Unix())
+	g := rand.New(s)
+	return res[g.Intn(len(res))], nil
 }

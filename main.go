@@ -39,6 +39,13 @@ func main() {
 	r.InitCache(boobas)
 	log.Printf("saving cache took %s !", time.Since(start))
 
+	start = time.Now()
+	res, err := r.GetBooba()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	log.Printf("got id %s, in %s !", res, time.Since(start))
+
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.LoadHTMLGlob("templates/*.tmpl.html")
@@ -48,5 +55,8 @@ func main() {
 		c.HTML(http.StatusOK, "index.tmpl.html", nil)
 	})
 
-	router.Run(":" + port)
+	err = router.Run(":" + port)
+	if err != nil {
+		return
+	}
 }
