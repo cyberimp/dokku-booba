@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/heroku/x/hmetrics/onload"
@@ -83,6 +84,11 @@ func main() {
 		if err != nil {
 			return
 		}
+
+		if !strings.HasPrefix(m.Message.Text, "/tits") {
+			return
+		}
+
 		post, err := client.GetPost(res)
 		if err != nil {
 			return
