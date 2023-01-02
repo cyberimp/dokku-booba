@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/cyberimp/dokku-booba/danbooru"
 	"github.com/cyberimp/dokku-booba/repo"
+	"html"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	_ "github.com/heroku/x/hmetrics/onload"
 )
 
@@ -44,19 +45,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	log.Printf("got id %s, in %s !", res, time.Since(start))
+	log.Printf("got id %d, in %s !", res, time.Since(start))
 
-	router := gin.New()
-	router.Use(gin.Logger())
-	router.LoadHTMLGlob("templates/*.tmpl.html")
-	router.Static("/static", "static")
-
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl.html", nil)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
 	})
 
-	err = router.Run(":" + port)
-	if err != nil {
-		return
-	}
+	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "Hi")
+	})
+
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
