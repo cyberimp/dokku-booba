@@ -37,6 +37,18 @@ func (r BoobaRepo) InitCache(content []string) {
 }
 
 func (r BoobaRepo) GetBooba() (string, error) {
+	url := os.Getenv("REDIS_URL")
+	if url == "" {
+		log.Fatal("no Redis cache!")
+	}
+
+	opt, err := redis.ParseURL(url)
+	if err != nil {
+		panic(err)
+	}
+
+	r.client = redis.NewClient(opt)
+
 	res, err := r.client.LRange(r.ctx, "booba", 0, -1).Result()
 	if err != nil {
 		return "", err
