@@ -34,7 +34,7 @@ type (
 		Character string `json:"tag_string_character"`
 		Artist    string `json:"tag_string_artist"`
 		Copyright string `json:"tag_string_copyright"`
-		FileUrl   string `json:"file_url"`
+		FileUrl   string `json:"large_file_url"`
 	}
 
 	id struct {
@@ -104,4 +104,11 @@ func (p *BooruPost) GetMarkdown() string {
 		result += "\n*Character:* `" + character + "`"
 	}
 	return result
+}
+
+func (p *BooruPost) CheckExt() bool {
+	if p.FileExt == "gif" || p.FileExt == "jpg" || p.FileExt == "jpeg" || p.FileExt == "png" || p.FileExt == "mp4" {
+		return true
+	}
+	return false
 }

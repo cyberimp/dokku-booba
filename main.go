@@ -74,10 +74,6 @@ func main() {
 
 	http.HandleFunc("/"+token, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		res, err := rep.GetBooba()
-		if err != nil {
-			log.Fatal(err)
-		}
 
 		var m tgInfo
 		err = json.NewDecoder(r.Body).Decode(&m)
@@ -88,11 +84,19 @@ func main() {
 		if !strings.HasPrefix(m.Message.Text, "/tits") {
 			return
 		}
+		post := new(danbooru.BooruPost)
+		for post.CheckExt() {
+			res, err := rep.GetBooba()
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		post, err := client.GetPost(res)
-		if err != nil {
-			return
+			post, err = client.GetPost(res)
+			if err != nil {
+				return
+			}
 		}
+
 		err = spam.Post(m.Message.Chat.Id, post)
 		if err != nil {
 			return
