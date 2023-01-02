@@ -52,9 +52,9 @@ func GetClient() (*BooruClient, error) {
 	return &client, nil
 }
 
-func (c *BooruClient) GetBooba() ([]string, error) {
+func (c *BooruClient) GetBooba() ([]int, error) {
 	var (
-		result []string
+		result []int
 	)
 	params := &Query{
 		Page:   0,
@@ -72,20 +72,20 @@ func (c *BooruClient) GetBooba() ([]string, error) {
 			return nil, err
 		}
 		for _, i := range *idArr {
-			result = append(result, strconv.Itoa(i.Id))
+			result = append(result, i.Id)
 		}
 	}
 
 	return result, nil
 }
 
-func (c *BooruClient) GetPost(id string) (*BooruPost, error) {
+func (c *BooruClient) GetPost(id int) (*BooruPost, error) {
 	params := &Query{
 		Login:  c.login,
 		ApiKey: c.apiKey,
 	}
 	result := new(BooruPost)
-	_, err := sling.New().Get(baseUrl).Path("posts/" + id + ".json").QueryStruct(params).ReceiveSuccess(result)
+	_, err := sling.New().Get(baseUrl).Path("posts/" + strconv.Itoa(id) + ".json").QueryStruct(params).ReceiveSuccess(result)
 	return result, err
 }
 

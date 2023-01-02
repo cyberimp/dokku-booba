@@ -1,51 +1,25 @@
 package repo
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
-	"log"
 	"math/rand"
-	"os"
+	"sync"
 	"time"
 )
 
 type BoobaRepo struct {
-	client *redis.Client
-	ctx    context.Context
+	cache []int
+	mutex sync.RWMutex
 }
 
-func (r BoobaRepo) InitCache(content []string) {
-	r.ctx = context.Background()
-	url := os.Getenv("REDIS_URL")
-	if url == "" {
-		log.Fatal("no Redis cache!")
-	}
-
-	opt, err := redis.ParseURL(url)
-	if err != nil {
-		panic(err)
-	}
-
-	r.client = redis.NewClient(opt)
-
-	r.client.Del(r.ctx, "booba")
-
-	for _, booba := range content {
-		_, err := r.client.RPush(r.ctx, "booba", booba).Result()
-		if err != nil {
-			panic(err)
-		}
-	}
+func (r *BoobaRepo) InitCache(content []int) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	r.cache = content
 }
 
-func (r BoobaRepo) GetBooba() (string, error) {
-	pong, err := r.client.Ping(r.ctx).Result()
-	log.Print(pong, err)
-	res, err := r.client.LRange(r.ctx, "booba", 0, -1).Result()
-	if err != nil {
-		return "", err
-	}
-
+func (r *BoobaRepo) GetBooba() (int, error) {
+	r.mutex.RLock()
+	defer r.mutex.RUnlock()
 	rand.Seed(time.Now().Unix())
-	return res[rand.Intn(len(res))], nil
+	return r.cache[rand.Intn(len(r.cache))], nil
 }
