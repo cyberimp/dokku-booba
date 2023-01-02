@@ -26,7 +26,10 @@ func (r BoobaRepo) InitCache(content []string) {
 	r.client = redis.NewClient(opt)
 
 	for _, booba := range content {
-		r.client.RPush(r.client.Context(), "booba", booba)
+		_, err := r.client.RPush(r.client.Context(), "booba", booba).Result()
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -36,7 +39,6 @@ func (r BoobaRepo) GetBooba() (string, error) {
 		return "", err
 	}
 
-	s := rand.NewSource(time.Now().Unix())
-	g := rand.New(s)
-	return res[g.Intn(len(res))], nil
+	rand.Seed(time.Now().Unix())
+	return res[rand.Intn(len(res))], nil
 }
