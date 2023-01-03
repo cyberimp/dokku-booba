@@ -30,6 +30,7 @@ type (
 	}
 
 	BooruPost struct {
+		ID        int    `json:"id"`
 		FileExt   string `json:"file_ext"`
 		Character string `json:"tag_string_character"`
 		Artist    string `json:"tag_string_artist"`
