@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 )
@@ -24,9 +25,14 @@ type tgInfo struct {
 }
 
 func handle(c chan os.Signal) {
+	chat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	for {
 		<-c
 		log.Print("Got SIGUSR1 from worker!")
+		tits.PostTits(chat)
 	}
 }
 
