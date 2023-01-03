@@ -10,7 +10,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	_ "github.com/heroku/x/hmetrics/onload"
@@ -23,6 +25,13 @@ type tgInfo struct {
 			Id int `json:"id"`
 		} `json:"chat"`
 	} `json:"message"`
+}
+
+func handle(c chan os.Signal) {
+	for {
+		<-c // This line will block until a signal is received
+		log.Print("Got SIGUSR1 from worker!")
+	}
 }
 
 func main() {
@@ -61,6 +70,10 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	log.Printf("got id %d, in %s !", res, time.Since(start))
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGUSR1)
+	go handle(c)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
