@@ -1,3 +1,3 @@
-#!/bin/sh
+#!/bin/bash
 
-killall -SIGUSR1 dokku-booba
+kill -SIGUSR1 $(pidof dokku-booba)

@@ -18,14 +18,14 @@ type tgInfo struct {
 	Message struct {
 		Text string `json:"text"`
 		Chat struct {
-			Id int `json:"id"`
+			ID int `json:"id"`
 		} `json:"chat"`
 	} `json:"message"`
 }
 
 func handle(c chan os.Signal) {
 	for {
-		<-c // This line will block until a signal is received
+		<-c
 		log.Print("Got SIGUSR1 from worker!")
 	}
 }
@@ -65,7 +65,7 @@ func main() {
 			return
 		}
 
-		tits.PostTits(m.Message.Chat.Id)
+		tits.PostTits(m.Message.Chat.ID)
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
