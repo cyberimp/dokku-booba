@@ -1,6 +1,7 @@
+// +heroku goVersion 1.18
 module github.com/cyberimp/dokku-booba
 
-go 1.17
+go 1.18
 
 require (
 	github.com/dghubble/sling v1.4.1
