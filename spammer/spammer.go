@@ -21,8 +21,11 @@ type (
 		token string
 	}
 	TGResponse struct {
+		Ok bool `json:"ok"`
+	}
+	TGError struct {
 		Ok          bool   `json:"ok"`
-		Description string `json:"description"`
+		Description string `json:"description,omitempty"`
 	}
 )
 
@@ -47,14 +50,14 @@ func (s *Spammer) Post(chatID int, post *danbooru.BooruPost) error {
 	}
 
 	resp := &TGResponse{}
-
-	_, err := sling.New().Get(baseUrl).Path("/bot" + s.token + "/send" + mode).QueryStruct(postParams).ReceiveSuccess(resp)
+	tgError := &TGError{}
+	_, err := sling.New().Get(baseUrl).Path("/bot"+s.token+"/send"+mode).QueryStruct(postParams).Receive(resp, tgError)
 	if err != nil {
 		return err
 	}
 	if !resp.Ok {
-		log.Print(resp.Description)
-		return errors.New(resp.Description)
+		log.Print(tgError.Description)
+		return errors.New(tgError.Description)
 	}
 	return nil
 }
