@@ -107,6 +107,8 @@ func PostTits(chatID int) {
 			log.Fatal("error adding post: ", err)
 		}
 
+		posts = append(posts, post.ID)
+
 		if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
 			id := new(int)
 			row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 LIMIT 1", chatID)
