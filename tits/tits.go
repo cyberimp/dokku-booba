@@ -75,6 +75,7 @@ func PostTits(chatID int) {
 	}
 
 	retry := true
+
 	for retry {
 		for post.BadExt() || checkBayan(post.ID, posts) {
 			res, err := rep.GetBooba()
