@@ -1,6 +1,7 @@
 package spammer
 
 import (
+	"errors"
 	"github.com/cyberimp/dokku-booba/danbooru"
 	"github.com/dghubble/sling"
 	"os"
@@ -19,7 +20,8 @@ type (
 		token string
 	}
 	TGResponse struct {
-		Ok bool `json:"ok"`
+		Ok          bool   `json:"ok"`
+		Description string `json:"description"`
 	}
 )
 
@@ -48,6 +50,9 @@ func (s *Spammer) Post(chatID int, post *danbooru.BooruPost) error {
 	_, err := sling.New().Get(baseUrl).Path("/bot" + s.token + "/send" + mode).QueryStruct(postParams).ReceiveSuccess(resp)
 	if err != nil {
 		return err
+	}
+	if !resp.Ok {
+		return errors.New(resp.Description)
 	}
 	return nil
 }

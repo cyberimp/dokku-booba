@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -73,39 +74,49 @@ func PostTits(chatID int) {
 		posts = append(posts, *cur)
 	}
 
-	for post.BadExt() || checkBayan(post.ID, posts) {
-		res, err := rep.GetBooba()
-		if err != nil {
-			log.Fatal(err)
+	retry := true
+	for retry {
+		for post.BadExt() || checkBayan(post.ID, posts) {
+			res, err := rep.GetBooba()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			post, err = client.GetPost(res)
+			if err != nil {
+				return
+			}
 		}
 
-		post, err = client.GetPost(res)
-		if err != nil {
-			return
+		log.Printf("Posting https://danbooru.donmai.us/posts/%d to chat #%d...", post.ID, chatID)
+		err = spam.Post(chatID, post)
+
+		if err == nil || strings.Contains(err.Error(), "not enough rights") {
+			retry = false
 		}
-	}
 
-	err = spam.Post(chatID, post)
-	if err != nil {
-		return
-	}
-	log.Printf("Posting https://danbooru.donmai.us/posts/%d to chat #%d", post.ID, chatID)
-
-	_, err = conn.Exec(context.Background(), "INSERT INTO antibayan (chat_id, post_id) VALUES($1, $2)", chatID, post.ID)
-	if err != nil {
-		log.Fatal("error adding post", err)
-	}
-
-	if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
-		id := new(int)
-		row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 LIMIT 1", chatID)
-		err := row.Scan(id)
 		if err != nil {
-			log.Fatal("error finding first post", err)
+			log.Printf("...Failed! Error: %s", err.Error())
 		}
-		_, err = conn.Exec(context.Background(), "DELETE FROM antibayan WHERE id = $1", id)
+
+		err = nil
+
+		_, err = conn.Exec(context.Background(), "INSERT INTO antibayan (chat_id, post_id) VALUES($1, $2)", chatID, post.ID)
 		if err != nil {
-			log.Fatal("error deleting post", err)
+			log.Fatal("error adding post: ", err)
+		}
+
+		if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
+			id := new(int)
+			row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 LIMIT 1", chatID)
+			err := row.Scan(id)
+			if err != nil {
+				log.Fatal("error finding first post: ", err)
+			}
+			_, err = conn.Exec(context.Background(), "DELETE FROM antibayan WHERE id = $1", id)
+			if err != nil {
+				log.Fatal("error deleting post: ", err)
+			}
 		}
 	}
 }
