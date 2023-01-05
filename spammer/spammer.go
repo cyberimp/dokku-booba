@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/cyberimp/dokku-booba/danbooru"
 	"github.com/dghubble/sling"
+	"log"
 	"os"
 )
 
@@ -52,6 +53,7 @@ func (s *Spammer) Post(chatID int, post *danbooru.BooruPost) error {
 		return err
 	}
 	if !resp.Ok {
+		log.Print(resp.Description)
 		return errors.New(resp.Description)
 	}
 	return nil

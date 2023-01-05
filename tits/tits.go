@@ -96,7 +96,7 @@ func PostTits(chatID int) {
 		}
 
 		if err != nil {
-			log.Printf("...Failed! Error: %s", err.Error())
+			log.Print("...Failed! Error:", err)
 		}
 
 		err = nil
