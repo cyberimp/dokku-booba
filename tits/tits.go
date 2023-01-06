@@ -111,7 +111,7 @@ func PostTits(chatID int) {
 
 		if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
 			id := new(int)
-			row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 LIMIT 1", chatID)
+			row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 ORDER BY id LIMIT 1", chatID)
 			err := row.Scan(id)
 			if err != nil {
 				log.Fatal("error finding first post: ", err)
