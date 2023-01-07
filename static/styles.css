@@ -14,3 +14,7 @@ html, body {
 .badge {
   vertical-align: text-bottom;
 }
+
+.jumbotron {
+    margin-top: 2rem;
+}
