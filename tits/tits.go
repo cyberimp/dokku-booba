@@ -132,3 +132,37 @@ func checkBayan(id int, posts []int) bool {
 	}
 	return false
 }
+
+func GetStats() (int, int) {
+	var (
+		chats int
+		priv  int
+	)
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal("Error opening connection:", err)
+	}
+
+	defer func(conn *pgx.Conn, ctx context.Context) {
+		err = conn.Close(ctx)
+		if err != nil {
+			log.Fatal("Error closing connection:", err)
+		}
+	}(conn, context.Background())
+
+	row := conn.QueryRow(context.Background(), "SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp")
+	err = row.Scan(&chats)
+	if err != nil {
+		log.Fatal("Error counting chats:", err)
+		return 0, 0
+	}
+
+	row = conn.QueryRow(context.Background(), "SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp WHERE temp.chat_id < 0")
+	err = row.Scan(&priv)
+	if err != nil {
+		log.Fatal("Error counting chats:", err)
+		return 0, 0
+	}
+
+	return chats, priv
+}

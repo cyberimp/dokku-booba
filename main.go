@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/cyberimp/dokku-booba/tits"
 	_ "github.com/heroku/x/hmetrics/onload"
-	"html"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -48,8 +48,21 @@ func main() {
 
 	go handle(c)
 
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+		data := struct {
+			Chats int
+			Priv  int
+		}{0, 0}
+
+		data.Chats, data.Priv = tits.GetStats()
+		tmpl, _ := template.ParseFiles("templates/index.html")
+		err := tmpl.Execute(w, data)
+		if err != nil {
+			log.Fatal("error parsing template:", err)
+		}
 	})
 
 	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {

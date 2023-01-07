@@ -1,0 +1,16 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+.vertical-center {
+    min-height: 100vh; /* These two lines are counted as one :-)       */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge {
+  vertical-align: text-bottom;
+}
