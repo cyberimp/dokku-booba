@@ -21,6 +21,7 @@ var (
 )
 
 func init() {
+	start := time.Now()
 	spam = new(spammer.Spammer)
 	spam.Init()
 
@@ -30,7 +31,6 @@ func init() {
 		log.Fatal(err.Error())
 	}
 
-	start := time.Now()
 	boobas, err := client.GetBooba()
 	if err != nil {
 		log.Fatal(err.Error())
@@ -42,6 +42,8 @@ func init() {
 }
 
 func PostTits(chatID int) {
+	start := time.Now()
+
 	spam.Busy(chatID)
 
 	magicChat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
@@ -124,6 +126,7 @@ func PostTits(chatID int) {
 			}
 		}
 	}
+	log.Printf("Posting this took %s !", time.Since(start))
 }
 
 func checkBayan(id int, posts []int) bool {
