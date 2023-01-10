@@ -61,3 +61,15 @@ func (s *Spammer) Post(chatID int, post *danbooru.BooruPost) error {
 	}
 	return nil
 }
+
+func (s *Spammer) Busy(chatId int) {
+	queryParams := struct {
+		ChatID int    `json:"chat_id"`
+		Action string `json:"action"`
+	}{chatId, "upload_photo"}
+	resp := &TGResponse{}
+	_, err := sling.New().Get(baseUrl).Path("/bot" + s.token + "/sendChatAction").QueryStruct(queryParams).ReceiveSuccess(resp)
+	if err != nil {
+		log.Fatal("Error setting chat status:", err)
+	}
+}

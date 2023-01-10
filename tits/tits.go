@@ -42,6 +42,8 @@ func init() {
 }
 
 func PostTits(chatID int) {
+	spam.Busy(chatID)
+
 	magicChat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
 	if err != nil {
 		log.Fatal("Error parsing CHAT_ID env:", err)
