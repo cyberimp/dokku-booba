@@ -17,7 +17,8 @@
                 <a class="btn btn-lg btn-danger" role="button" href="https://t.me/tiddies2dbot"><i class="fa-brands fa-telegram"></i>&nbsp;Visit now!</a>
                 <hr class="my-4">
                 <p>Some stats for this bot: <span class="badge badge-secondary">{{.Chats}}</span> active chats with bot,
-                    from which <span class="badge badge-secondary">{{.Priv}}</span> is invite-only chats</p>
+                    from which <span class="badge badge-secondary">{{- /*gotype: github.com/cyberimp/dokku-booba.chatData*/ -}}
+                        {{.Priv}}</span> is invite-only chats</p>
 
             </div>
         </div>

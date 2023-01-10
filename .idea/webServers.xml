@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bab1376c-cda0-4f0e-9ef9-ed2f26fb5245" name="hexcore.ru" url="http://dokku-booba.hexcore-dns.ru">
+        <fileTransfer accessType="LOCAL" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>

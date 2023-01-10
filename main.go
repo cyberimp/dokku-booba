@@ -15,14 +15,20 @@ import (
 	"syscall"
 )
 
-type tgInfo struct {
-	Message struct {
-		Text string `json:"text"`
-		Chat struct {
-			ID int `json:"id"`
-		} `json:"chat"`
-	} `json:"message"`
-}
+type (
+	tgInfo struct {
+		Message struct {
+			Text string `json:"text"`
+			Chat struct {
+				ID int `json:"id"`
+			} `json:"chat"`
+		} `json:"message"`
+	}
+	chatData struct {
+		Chats int
+		Priv  int
+	}
+)
 
 func handle(c chan os.Signal) {
 	chat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
@@ -52,10 +58,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		data := struct {
-			Chats int
-			Priv  int
-		}{0, 0}
+		data := chatData{0, 0}
 
 		data.Chats, data.Priv = tits.GetStats()
 		tmpl, _ := template.ParseFiles("templates/index.html")
