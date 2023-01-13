@@ -75,6 +75,13 @@ func main() {
 	token := os.Getenv("TG_TOKEN")
 
 	http.HandleFunc("/"+token, func(w http.ResponseWriter, r *http.Request) {
+		type Response struct {
+			Method string `json:"method"`
+			Action string `json:"action"`
+			ChatID int    `json:"chat_id"`
+		}
+
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
 		var m tgInfo
@@ -85,6 +92,13 @@ func main() {
 
 		if !strings.HasPrefix(m.Message.Text, "/tits") {
 			return
+		}
+
+		resp := Response{Method: "sendChatAction", ChatID: m.Message.Chat.ID, Action: "upload_photo"}
+
+		err = json.NewEncoder(w).Encode(resp)
+		if err != nil {
+			log.Print("error encoding response:", err)
 		}
 
 		go tits.PostTits(m.Message.Chat.ID)
