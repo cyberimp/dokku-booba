@@ -44,7 +44,7 @@ func init() {
 func PostTits(chatID int) {
 	start := time.Now()
 
-	spam.Busy(chatID)
+	go spam.Busy(chatID)
 
 	magicChat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
 	if err != nil {

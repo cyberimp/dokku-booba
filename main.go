@@ -87,7 +87,7 @@ func main() {
 			return
 		}
 
-		tits.PostTits(m.Message.Chat.ID)
+		go tits.PostTits(m.Message.Chat.ID)
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
