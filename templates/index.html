@@ -21,9 +21,11 @@
                     <i class="fa-brands fa-github"></i>&nbsp;&nbsp;View source
                 </a>
                 <hr class="my-4">
-                <p>Some stats for this bot: <span class="badge badge-secondary">{{.Chats}}</span> active chats with bot,
-                    from which <span class="badge badge-secondary">{{- /*gotype: github.com/cyberimp/dokku-booba.chatData*/ -}}
-                        {{.Priv}}</span> is invite-only chats</p>
+                <p>
+                    {{- /*gotype: github.com/cyberimp/dokku-booba.chatData*/ -}}
+                    Some stats for this bot: <span class="badge bg-secondary">{{.Chats}}</span> active chats with bot,
+                    from which <span class="badge bg-secondary">{{.Priv}}</span> is invite-only chats
+                </p>
 
             </div>
         </div>
