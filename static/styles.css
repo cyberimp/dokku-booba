@@ -12,5 +12,5 @@ html, body {
 }
 
 .badge {
-  vertical-align: text-bottom;
+  padding-bottom: 0.25em;
 }
