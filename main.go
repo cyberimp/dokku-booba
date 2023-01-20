@@ -19,6 +19,11 @@ type (
 	tgInfo struct {
 		Message struct {
 			Text string `json:"text"`
+			From struct {
+				Username  string `json:"username,omitempty"`
+				FirstName string `json:"first_name,omitempty"`
+				LastName  string `json:"last_name,omitempty"`
+			} `json:"from"`
 			Chat struct {
 				ID        int    `json:"id"`
 				Title     string `json:"title,omitempty"`
@@ -94,7 +99,7 @@ func main() {
 			return
 		}
 
-		log.Print(m)
+		log.Printf("%+v", m)
 
 		if !strings.HasPrefix(m.Message.Text, "/tits") {
 			return
