@@ -84,6 +84,8 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
+		log.Print(r.Body)
+
 		var m tgInfo
 		err := json.NewDecoder(r.Body).Decode(&m)
 		if err != nil {
