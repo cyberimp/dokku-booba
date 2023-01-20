@@ -20,7 +20,11 @@ type (
 		Message struct {
 			Text string `json:"text"`
 			Chat struct {
-				ID int `json:"id"`
+				ID        int    `json:"id"`
+				Title     string `json:"title,omitempty"`
+				Username  string `json:"username,omitempty"`
+				FirstName string `json:"first_name,omitempty"`
+				LastName  string `json:"last_name,omitempty"`
 			} `json:"chat"`
 		} `json:"message"`
 	}
@@ -84,13 +88,13 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		log.Print(r.Body)
-
 		var m tgInfo
 		err := json.NewDecoder(r.Body).Decode(&m)
 		if err != nil {
 			return
 		}
+
+		log.Print(m)
 
 		if !strings.HasPrefix(m.Message.Text, "/tits") {
 			return
