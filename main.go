@@ -51,6 +51,13 @@ func handle(c chan os.Signal) {
 	}
 }
 
+func CacheControlWrapper(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "max-age=7776000")
+		h.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	port := os.Getenv("PORT")
 
@@ -64,10 +71,7 @@ func main() {
 	go handle(c)
 
 	fs := http.FileServer(http.Dir("./static"))
-	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "max-age=7776000")
-		fs.ServeHTTP(w, r)
-	})
+	http.Handle("/static/", http.StripPrefix("/static/", CacheControlWrapper(fs)))
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data := chatData{0, 0}
