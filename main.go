@@ -54,6 +54,7 @@ func handle(c chan os.Signal) {
 func CacheControlWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "max-age=7776000")
+		w.Header().Set("ETag", "v1") //change when changing assets
 		h.ServeHTTP(w, r)
 	})
 }
