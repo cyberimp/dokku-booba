@@ -2,7 +2,7 @@
   "healthchecks": {
     "web": [
       {
-        "type": "startup",
+        "type": "not-working",
         "name": "ready check",
         "description": "Checking if the app responds to the /hi endpoint",
         "wait": 120,
