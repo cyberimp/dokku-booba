@@ -2,8 +2,8 @@
   "healthchecks": {
     "web": [
       {
-        "type": "readyness",
-        "name": "web check",
+        "type": "readiness",
+        "name": "ready check",
         "description": "Checking if the app responds to the /hi endpoint",
         "initialDelay": 120,
         "path": "/hi",
