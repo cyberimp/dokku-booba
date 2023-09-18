@@ -6,6 +6,7 @@
         "name": "ready check",
         "description": "Checking if the app responds to the /hi endpoint",
         "initialDelay": 120,
+        "timeout": 200,
         "path": "/hi",
         "content": "Hi",
         "attempts": 1
