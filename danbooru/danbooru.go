@@ -98,6 +98,11 @@ func clearUnderscore(s string) string {
 func (p *BooruPost) GetMarkdown() string {
 	artist := clearUnderscore(p.Artist)
 	copyright := clearUnderscore(p.Copyright)
+
+	if copyright == "" {
+		copyright = "Original"
+	}
+
 	character := clearUnderscore(p.Character)
 	result := "*Artist:* `" + artist + "`"
 	result += "\n*Origin:* `" + copyright + "`"
