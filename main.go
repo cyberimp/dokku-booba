@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type (
@@ -52,11 +53,15 @@ func handle(c chan os.Signal) {
 }
 
 func CacheControlWrapper(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "max-age=7776000")
-		w.Header().Set("ETag", "v1") //change when changing assets
-		h.ServeHTTP(w, r)
-	})
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "private,max-age=7776000")
+			w.Header().Set("ETag", "v1") //change when changing assets
+			w.Header().Set("Expires", time.Now().AddDate(1, 0, 0).Format(http.TimeFormat))
+			w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
+			h.ServeHTTP(w, r)
+		},
+	)
 }
 
 func main() {
@@ -74,54 +79,60 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", CacheControlWrapper(fs)))
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		data := chatData{0, 0}
+	http.HandleFunc(
+		"/", func(w http.ResponseWriter, r *http.Request) {
+			data := chatData{0, 0}
 
-		data.Chats, data.Priv = tits.GetStats()
-		tmpl, _ := template.ParseFiles("templates/index.html")
-		err := tmpl.Execute(w, data)
-		if err != nil {
-			log.Fatal("error parsing template:", err)
-		}
-	})
+			data.Chats, data.Priv = tits.GetStats()
+			tmpl, _ := template.ParseFiles("templates/index.html")
+			err := tmpl.Execute(w, data)
+			if err != nil {
+				log.Fatal("error parsing template:", err)
+			}
+		},
+	)
 
-	http.HandleFunc("/hi", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprintf(w, "Hi")
-	})
+	http.HandleFunc(
+		"/hi", func(w http.ResponseWriter, r *http.Request) {
+			_, _ = fmt.Fprintf(w, "Hi")
+		},
+	)
 
 	token := os.Getenv("TG_TOKEN")
 
-	http.HandleFunc("/"+token, func(w http.ResponseWriter, r *http.Request) {
-		type Response struct {
-			Method string `json:"method"`
-			Action string `json:"action"`
-			ChatID int    `json:"chat_id"`
-		}
+	http.HandleFunc(
+		"/"+token, func(w http.ResponseWriter, r *http.Request) {
+			type Response struct {
+				Method string `json:"method"`
+				Action string `json:"action"`
+				ChatID int    `json:"chat_id"`
+			}
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
 
-		var m tgInfo
-		err := json.NewDecoder(r.Body).Decode(&m)
-		if err != nil {
-			return
-		}
+			var m tgInfo
+			err := json.NewDecoder(r.Body).Decode(&m)
+			if err != nil {
+				return
+			}
 
-		log.Printf("%+v", m)
+			log.Printf("%+v", m)
 
-		if !strings.HasPrefix(m.Message.Text, "/tits") {
-			return
-		}
+			if !strings.HasPrefix(m.Message.Text, "/tits") {
+				return
+			}
 
-		resp := Response{Method: "sendChatAction", ChatID: m.Message.Chat.ID, Action: "upload_photo"}
+			resp := Response{Method: "sendChatAction", ChatID: m.Message.Chat.ID, Action: "upload_photo"}
 
-		err = json.NewEncoder(w).Encode(resp)
-		if err != nil {
-			log.Print("error encoding response:", err)
-		}
+			err = json.NewEncoder(w).Encode(resp)
+			if err != nil {
+				log.Print("error encoding response:", err)
+			}
 
-		go tits.PostTits(m.Message.Chat.ID)
-	})
+			go tits.PostTits(m.Message.Chat.ID)
+		},
+	)
 
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
