@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-	"time"
 )
 
 type (
@@ -52,18 +51,6 @@ func handle(c chan os.Signal) {
 	}
 }
 
-func CacheControlWrapper(h http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Cache-Control", "private,max-age=7776000")
-			w.Header().Set("ETag", "v1") //change when changing assets
-			w.Header().Set("Expires", time.Now().AddDate(1, 0, 0).Format(http.TimeFormat))
-			w.Header().Set("Last-Modified", time.Now().UTC().Format(http.TimeFormat))
-			h.ServeHTTP(w, r)
-		},
-	)
-}
-
 func main() {
 	port := os.Getenv("PORT")
 
@@ -75,9 +62,6 @@ func main() {
 	signal.Notify(c, syscall.SIGUSR1)
 
 	go handle(c)
-
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/static/", http.StripPrefix("/static/", CacheControlWrapper(fs)))
 
 	http.HandleFunc(
 		"/", func(w http.ResponseWriter, r *http.Request) {
