@@ -65,7 +65,7 @@ func main() {
 
 	go handle(c)
 
-	remote, err := url.Parse("http://static.tiddies.pics")
+	remote, err := url.Parse("http://static.tiddies.pics/")
 	if err != nil {
 		panic(err)
 	}
@@ -88,7 +88,7 @@ func main() {
 				return
 			}
 			rw.Header().Add("Content-Type", originServerResponse.Header.Get("Content-Type"))
-			rw.Header().Add("Content-Size", originServerResponse.Header.Get("Content-Size"))
+			rw.Header().Add("Content-Length", originServerResponse.Header.Get("Content-Length"))
 			// return response to the client
 			rw.WriteHeader(http.StatusOK)
 			_, _ = io.Copy(rw, originServerResponse.Body)
