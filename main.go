@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"github.com/cyberimp/dokku-booba/tits"
 	_ "github.com/heroku/x/hmetrics/onload"
+	"io"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type (
@@ -69,16 +70,31 @@ func main() {
 		panic(err)
 	}
 
-	handler := func(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
-		return func(w http.ResponseWriter, r *http.Request) {
-			log.Println(r.URL)
-			r.Host = remote.Host
-			p.ServeHTTP(w, r)
-		}
-	}
+	reverseProxy := http.HandlerFunc(
+		func(rw http.ResponseWriter, req *http.Request) {
+			fmt.Printf("[reverse proxy server] received request at: %s\n", time.Now())
 
-	proxy := httputil.NewSingleHostReverseProxy(remote)
-	http.HandleFunc("/", handler(proxy))
+			// set req Host, URL and Request URI to forward a request to the origin server
+			req.Host = remote.Host
+			req.URL.Host = remote.Host
+			req.URL.Scheme = remote.Scheme
+			req.RequestURI = ""
+
+			// save the response from the origin server
+			originServerResponse, err := http.DefaultClient.Do(req)
+			if err != nil {
+				rw.WriteHeader(http.StatusInternalServerError)
+				_, _ = fmt.Fprint(rw, err)
+				return
+			}
+
+			// return response to the client
+			rw.WriteHeader(http.StatusOK)
+			io.Copy(rw, originServerResponse.Body)
+		},
+	)
+
+	http.HandleFunc("/", reverseProxy)
 
 	http.HandleFunc(
 		"/hi", func(w http.ResponseWriter, r *http.Request) {
