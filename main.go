@@ -79,7 +79,7 @@ func main() {
 			req.URL.Host = remote.Host
 			req.URL.Scheme = remote.Scheme
 			req.RequestURI = ""
-
+			req.Header.Set("Accept-Encoding", "identity")
 			// save the response from the origin server
 			originServerResponse, err := http.DefaultClient.Do(req)
 			if err != nil {
