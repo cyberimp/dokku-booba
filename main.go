@@ -87,10 +87,11 @@ func main() {
 				_, _ = fmt.Fprint(rw, err)
 				return
 			}
-
+			rw.Header().Add("Content-Type", originServerResponse.Header.Get("Content-Type"))
+			rw.Header().Add("Content-Size", originServerResponse.Header.Get("Content-Size"))
 			// return response to the client
 			rw.WriteHeader(http.StatusOK)
-			io.Copy(rw, originServerResponse.Body)
+			_, _ = io.Copy(rw, originServerResponse.Body)
 		},
 	)
 
