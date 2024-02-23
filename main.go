@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/cyberimp/dokku-booba/tits"
 	_ "github.com/heroku/x/hmetrics/onload"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -34,8 +33,8 @@ type (
 		} `json:"message"`
 	}
 	chatData struct {
-		Chats int
-		Priv  int
+		Chats int `json:"chats,omitempty"`
+		Priv  int `json:"private,omitempty"`
 	}
 )
 
@@ -63,22 +62,22 @@ func main() {
 
 	go handle(c)
 
-	http.HandleFunc(
-		"/", func(w http.ResponseWriter, r *http.Request) {
-			data := chatData{0, 0}
-
-			data.Chats, data.Priv = tits.GetStats()
-			tmpl, _ := template.ParseFiles("templates/index.html")
-			err := tmpl.Execute(w, data)
-			if err != nil {
-				log.Fatal("error parsing template:", err)
-			}
-		},
-	)
+	http.Handle("/", http.RedirectHandler("https://static.tiddies.pics", http.StatusSeeOther))
 
 	http.HandleFunc(
 		"/hi", func(w http.ResponseWriter, r *http.Request) {
 			_, _ = fmt.Fprintf(w, "Hi")
+		},
+	)
+
+	http.HandleFunc(
+		"/stats.json", func(w http.ResponseWriter, r *http.Request) {
+			data := chatData{0, 0}
+			data.Chats, data.Priv = tits.GetStats()
+			err := json.NewEncoder(w).Encode(data)
+			if err != nil {
+				log.Fatal("Error sending json:", err)
+			}
 		},
 	)
 
