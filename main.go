@@ -74,6 +74,7 @@ func main() {
 		"/stats.json", func(w http.ResponseWriter, r *http.Request) {
 			data := chatData{0, 0}
 			data.Chats, data.Priv = tits.GetStats()
+			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(data)
 			if err != nil {
 				log.Fatal("Error sending json:", err)
