@@ -7,6 +7,8 @@ import (
 	_ "github.com/heroku/x/hmetrics/onload"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -62,7 +64,21 @@ func main() {
 
 	go handle(c)
 
-	http.Handle("/", http.RedirectHandler("https://static.tiddies.pics", http.StatusSeeOther))
+	remote, err := url.Parse("http://static.tiddies.pics")
+	if err != nil {
+		panic(err)
+	}
+
+	handler := func(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
+		return func(w http.ResponseWriter, r *http.Request) {
+			log.Println(r.URL)
+			r.Host = remote.Host
+			p.ServeHTTP(w, r)
+		}
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	http.HandleFunc("/", handler(proxy))
 
 	http.HandleFunc(
 		"/hi", func(w http.ResponseWriter, r *http.Request) {
