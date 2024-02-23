@@ -34,7 +34,7 @@ type (
 	}
 	chatData struct {
 		Chats int `json:"chats,omitempty"`
-		Priv  int `json:"private,omitempty"`
+		Priv  int `json:"priv,omitempty"`
 	}
 )
 
