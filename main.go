@@ -69,16 +69,8 @@ func main() {
 		panic(err)
 	}
 
-	handler := func(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
-		return func(w http.ResponseWriter, r *http.Request) {
-			log.Println(r.URL)
-			r.Host = remote.Host
-			p.ServeHTTP(w, r)
-		}
-	}
-
 	proxy := httputil.NewSingleHostReverseProxy(remote)
-	http.HandleFunc("/", handler(proxy))
+	http.Handle("/", proxy)
 
 	http.HandleFunc(
 		"/hi", func(w http.ResponseWriter, r *http.Request) {
