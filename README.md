@@ -1,6 +1,7 @@
 # Booba watcher
 
-![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhentai.tiddies.pics%2Fstats.json&query=%24.chats&style=plastic&logo=telegram&label=users&color=%2326A5E4&cacheSeconds=3600&link=https%3A%2F%2Ft.me%2Ftiddies2dbot)
+[![Dynamic JSON Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhentai.tiddies.pics%2Fstats.json&query=%24.chats&logo=telegram&label=users&color=%2326A5E4&cacheSeconds=3600&link=https%3A%2F%2Ft.me%2Ftiddies2dbot)](https://hentai.tiddies.pics)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cyberimp/dokku-booba)](https://goreportcard.com/report/github.com/cyberimp/dokku-booba)
 
 Automatic moderator for adult Telegram channel, now with dokku deployment
 
