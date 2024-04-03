@@ -17,6 +17,8 @@ type BoobaRepo struct {
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 	r.ctx = context.Background()
 	url := os.Getenv("REDIS_URL")
 	opts, err := redis.ParseURL(url)
