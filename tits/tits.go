@@ -44,6 +44,7 @@ func init() {
 func PostTits(chatID int) {
 	start := time.Now()
 
+	rep.IncViews()
 	magicChat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
 	if err != nil {
 		log.Fatal("Error parsing CHAT_ID env:", err)
@@ -104,7 +105,9 @@ func PostTits(chatID int) {
 
 		err = nil
 
-		_, err = conn.Exec(context.Background(), "INSERT INTO antibayan (chat_id, post_id) VALUES($1, $2)", chatID, post.ID)
+		_, err = conn.Exec(
+			context.Background(), "INSERT INTO antibayan (chat_id, post_id) VALUES($1, $2)", chatID, post.ID,
+		)
 		if err != nil {
 			log.Fatal("error adding post: ", err)
 		}
@@ -113,7 +116,9 @@ func PostTits(chatID int) {
 
 		if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
 			id := new(int)
-			row := conn.QueryRow(context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 ORDER BY id LIMIT 1", chatID)
+			row := conn.QueryRow(
+				context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 ORDER BY id LIMIT 1", chatID,
+			)
 			err := row.Scan(id)
 			if err != nil {
 				log.Fatal("error finding first post: ", err)
@@ -160,7 +165,10 @@ func GetStats() (int, int) {
 		return 0, 0
 	}
 
-	row = conn.QueryRow(context.Background(), "SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp WHERE temp.chat_id < 0")
+	row = conn.QueryRow(
+		context.Background(),
+		"SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp WHERE temp.chat_id < 0",
+	)
 	err = row.Scan(&priv)
 	if err != nil {
 		log.Fatal("Error counting chats:", err)

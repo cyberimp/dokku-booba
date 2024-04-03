@@ -7,16 +7,19 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type BoobaRepo struct {
-	cache []int
-	mutex sync.RWMutex
-	rdb   *redis.Client
-	ctx   context.Context
+	cache      []int
+	mutex      sync.RWMutex
+	rdb        *redis.Client
+	ctx        context.Context
+	launchName string
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
+	r.launchName = time.Now().String()
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 	r.ctx = context.Background()
@@ -26,6 +29,11 @@ func (r *BoobaRepo) redisInit(content []int) {
 		log.Fatal("error getting data for redis connection:", err)
 	}
 	r.rdb = redis.NewClient(opts)
+
+	err = r.rdb.LPush(r.ctx, "Launches", r.launchName).Err()
+	if err != nil {
+		log.Fatal("error pushing last launch:", err)
+	}
 
 	anyContent := make([]any, 0, len(content))
 	for _, num := range content {
@@ -54,12 +62,17 @@ func (r *BoobaRepo) InitCache(content []int) {
 func (r *BoobaRepo) GetBooba() (int, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
-	//	rand.Seed(time.Now().Unix())
-	//	return r.cache[rand.Intn(len(r.cache))], nil
 	res, err := r.rdb.SPop(r.ctx, "booba_active").Result()
 	if err != nil {
 		return 0, err
 	}
 	intRes, err := strconv.Atoi(res)
 	return intRes, err
+}
+
+func (r *BoobaRepo) IncViews() {
+	err := r.rdb.Incr(r.ctx, r.launchName).Err()
+	if err != nil {
+		log.Fatal("error incrementing views:", err)
+	}
 }
