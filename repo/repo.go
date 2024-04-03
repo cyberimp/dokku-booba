@@ -4,10 +4,9 @@ import (
 	"context"
 	"github.com/redis/go-redis/v9"
 	"log"
-	"math/rand"
 	"os"
+	"strconv"
 	"sync"
-	"time"
 )
 
 type BoobaRepo struct {
@@ -30,7 +29,15 @@ func (r *BoobaRepo) redisInit(content []int) {
 	for _, num := range content {
 		anyContent = append(anyContent, num)
 	}
-	r.rdb.SAdd(r.ctx, "booba_new", anyContent...)
+	err = r.rdb.SAdd(r.ctx, "booba_new", anyContent...).Err()
+	if err != nil {
+		log.Fatal("error adding booba to Redis:", err)
+	}
+	err = r.rdb.Rename(r.ctx, "booba_new", "booba_active").Err()
+	if err != nil {
+		log.Fatal("error renaming key:", err)
+	}
+
 	log.Print("Pushed into Redis!")
 }
 
@@ -45,6 +52,12 @@ func (r *BoobaRepo) InitCache(content []int) {
 func (r *BoobaRepo) GetBooba() (int, error) {
 	r.mutex.RLock()
 	defer r.mutex.RUnlock()
-	rand.Seed(time.Now().Unix())
-	return r.cache[rand.Intn(len(r.cache))], nil
+	//	rand.Seed(time.Now().Unix())
+	//	return r.cache[rand.Intn(len(r.cache))], nil
+	res, err := r.rdb.SPop(r.ctx, "booba_new").Result()
+	if err != nil {
+		return 0, err
+	}
+	intRes, err := strconv.Atoi(res)
+	return intRes, err
 }
