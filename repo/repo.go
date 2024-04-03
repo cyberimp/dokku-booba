@@ -54,7 +54,7 @@ func (r *BoobaRepo) GetBooba() (int, error) {
 	defer r.mutex.RUnlock()
 	//	rand.Seed(time.Now().Unix())
 	//	return r.cache[rand.Intn(len(r.cache))], nil
-	res, err := r.rdb.SPop(r.ctx, "booba_new").Result()
+	res, err := r.rdb.SPop(r.ctx, "booba_active").Result()
 	if err != nil {
 		return 0, err
 	}
