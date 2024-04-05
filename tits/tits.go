@@ -1,11 +1,9 @@
 package tits
 
 import (
-	"context"
 	"github.com/cyberimp/dokku-booba/danbooru"
 	"github.com/cyberimp/dokku-booba/repo"
 	"github.com/cyberimp/dokku-booba/spammer"
-	"github.com/jackc/pgx/v5"
 	"log"
 	"os"
 	"strconv"
@@ -45,42 +43,21 @@ func PostTits(chatID int) {
 	start := time.Now()
 
 	rep.IncViews()
+	rep.AddChat(chatID)
+
 	magicChat, err := strconv.Atoi(os.Getenv("CHAT_ID"))
 	if err != nil {
 		log.Fatal("Error parsing CHAT_ID env:", err)
 	}
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal("Error opening connection:", err)
-	}
-
-	defer func(conn *pgx.Conn, ctx context.Context) {
-		err = conn.Close(ctx)
-		if err != nil {
-			log.Fatal("Error closing connection:", err)
-		}
-	}(conn, context.Background())
-
 	post := new(danbooru.BooruPost)
 	post.FileExt = "invalid"
 	post.ID = 0
 
-	allPosts, err := conn.Query(context.Background(), "SELECT post_id FROM antibayan WHERE chat_id = $1", chatID)
-	var posts []int
-	cur := new(int)
-	for allPosts.Next() {
-		err := allPosts.Scan(cur)
-		if err != nil {
-			log.Fatal("error scanning posts", err)
-		}
-		posts = append(posts, *cur)
-	}
-
 	retry := true
 
 	for retry {
-		for post.BadExt() || checkBayan(post.ID, posts) {
+		for post.BadExt() || rep.CheckBayan(chatID, post.ID) {
 			res, err := rep.GetBooba()
 			if err != nil {
 				log.Fatal(err)
@@ -105,75 +82,17 @@ func PostTits(chatID int) {
 
 		err = nil
 
-		_, err = conn.Exec(
-			context.Background(), "INSERT INTO antibayan (chat_id, post_id) VALUES($1, $2)", chatID, post.ID,
-		)
-		if err != nil {
-			log.Fatal("error adding post: ", err)
+		trim := 100
+		if chatID == magicChat {
+			trim *= 10
 		}
 
-		posts = append(posts, post.ID)
+		rep.AddBayan(chatID, post.ID, trim)
 
-		if (len(posts) > 100 && chatID != magicChat) || len(posts) > 1000 {
-			id := new(int)
-			row := conn.QueryRow(
-				context.Background(), "SELECT id FROM antibayan WHERE chat_id = $1 ORDER BY id LIMIT 1", chatID,
-			)
-			err := row.Scan(id)
-			if err != nil {
-				log.Fatal("error finding first post: ", err)
-			}
-			_, err = conn.Exec(context.Background(), "DELETE FROM antibayan WHERE id = $1", id)
-			if err != nil {
-				log.Fatal("error deleting post: ", err)
-			}
-		}
 	}
 	log.Printf("Posting this took %s !", time.Since(start))
 }
 
-func checkBayan(id int, posts []int) bool {
-	for _, post := range posts {
-		if post == id {
-			return true
-		}
-	}
-	return false
-}
-
 func GetStats() (int, int) {
-	var (
-		chats int
-		priv  int
-	)
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal("Error opening connection:", err)
-	}
-
-	defer func(conn *pgx.Conn, ctx context.Context) {
-		err = conn.Close(ctx)
-		if err != nil {
-			log.Fatal("Error closing connection:", err)
-		}
-	}(conn, context.Background())
-
-	row := conn.QueryRow(context.Background(), "SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp")
-	err = row.Scan(&chats)
-	if err != nil {
-		log.Fatal("Error counting chats:", err)
-		return 0, 0
-	}
-
-	row = conn.QueryRow(
-		context.Background(),
-		"SELECT COUNT(*) FROM (SELECT DISTINCT chat_id FROM antibayan) AS temp WHERE temp.chat_id < 0",
-	)
-	err = row.Scan(&priv)
-	if err != nil {
-		log.Fatal("Error counting chats:", err)
-		return 0, 0
-	}
-
-	return chats, priv
+	return rep.GetStats()
 }
