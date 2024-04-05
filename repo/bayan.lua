@@ -14,4 +14,4 @@ if length > trim then
     redis.call('LTRIM', list, 0, length-1)
 end
 
-return true
+return 1
