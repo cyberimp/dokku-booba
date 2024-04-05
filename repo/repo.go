@@ -160,7 +160,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	for _, key := range keys {
 		value, err = r.rdb.HGet(r.ctx, "stats:views", key).Result()
 		if err != nil {
-			log.Fatal("error getting values for launches:", err)
+			value = "0"
 		}
 		nvalue, err = strconv.Atoi(value)
 		if err != nil {
