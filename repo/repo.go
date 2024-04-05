@@ -137,7 +137,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	views := map[string]int{}
 	t := time.Now()
 	var dates []string
-	start := t.AddDate(0, 0, -8)
+	start := t.AddDate(0, 0, -7)
 	for ; t.After(start); t = t.AddDate(0, 0, -1) {
 		dates = append(dates, t.Format("02.01"))
 	}
