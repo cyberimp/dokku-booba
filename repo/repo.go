@@ -8,7 +8,6 @@ import (
 	"os"
 	"slices"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -28,7 +27,7 @@ type ReqData struct {
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
-	r.launchName = time.Now().String()
+	r.launchName = time.Now().Format(time.DateTime)
 
 	r.ctx = context.Background()
 	url := os.Getenv("REDIS_URL")
@@ -45,7 +44,7 @@ func (r *BoobaRepo) redisInit(content []int) {
 
 	pipe := r.rdb.TxPipeline()
 
-	pipe.LPush(r.ctx, "Launches", r.launchName)
+	pipe.LPush(r.ctx, "stats:launches", r.launchName)
 
 	anyContent := make([]any, 0, len(content))
 	for _, num := range content {
@@ -147,7 +146,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 		views[date] = 0
 	}
 
-	keys, err := r.rdb.LRange(r.ctx, "Launches", 0, 100).Result()
+	keys, err := r.rdb.LRange(r.ctx, "stats:launches", 0, 100).Result()
 	if err != nil {
 		log.Fatal("error getting keys for launches:", err)
 	}
@@ -167,8 +166,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 			log.Fatal("error parsing value:", err)
 		}
 
-		cut := strings.Split(key, "m=")[0]
-		cur, err = time.Parse("2006-01-02 15:04:05.00000000 -0700 UTC ", cut)
+		cur, err = time.Parse(time.DateTime, key)
 		if err != nil {
 			log.Fatal("error parsing date:", err)
 		}
