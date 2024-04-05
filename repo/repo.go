@@ -176,8 +176,8 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	}
 
 	var res []ReqData
-	for k, v := range views {
-		res = append(res, ReqData{k, v})
+	for _, v := range dates {
+		res = append(res, ReqData{v, views[v]})
 	}
 	return res
 }
