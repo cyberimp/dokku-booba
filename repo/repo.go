@@ -24,7 +24,7 @@ type BoobaRepo struct {
 
 type ReqData struct {
 	Date     string `json:"date,omitempty"`
-	Requests int    `json:"requests,omitempty"`
+	Requests int    `json:"requests"`
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
@@ -169,6 +169,9 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 
 		cut := strings.Split(key, "m=")[0]
 		cur, err = time.Parse("2006-01-02 15:04:05.000000000 -0700 UTC ", cut)
+		if err != nil {
+			log.Fatal("error parsing date:", err)
+		}
 		if _, ok = views[cur.Format("02.01")]; ok {
 			views[cur.Format("02.01")] += nvalue
 		}
