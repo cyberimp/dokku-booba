@@ -1,10 +1,10 @@
 local set = KEYS[1]
 local list = KEYS[2]
 local newID = ARGV[1]
-local trim = ARGV[2]
+local trim = tonumber(ARGV[2])
 
 redis.call('SADD', set, newID)
-local length = redis.call('LPUSH', list, newID)
+local length = tonumber(redis.call('LPUSH', list, newID))
 if length > trim then
     local diff = length-trim+1
     local result = redis.call('LRANGE', list, -diff, -1)
