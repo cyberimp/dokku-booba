@@ -35,6 +35,7 @@ type (
 			} `json:"chat"`
 		} `json:"message"`
 	}
+
 	chatData struct {
 		Chats int `json:"chats,omitempty"`
 		Priv  int `json:"priv,omitempty"`
@@ -108,6 +109,17 @@ func main() {
 		"/stats.json", func(w http.ResponseWriter, r *http.Request) {
 			data := chatData{0, 0}
 			data.Chats, data.Priv = tits.GetStats()
+			w.Header().Set("Content-Type", "application/json")
+			err := json.NewEncoder(w).Encode(data)
+			if err != nil {
+				log.Fatal("Error sending json:", err)
+			}
+		},
+	)
+
+	http.HandleFunc(
+		"/dateChart.json", func(w http.ResponseWriter, r *http.Request) {
+			data := tits.GetRequests()
 			w.Header().Set("Content-Type", "application/json")
 			err := json.NewEncoder(w).Encode(data)
 			if err != nil {

@@ -6,7 +6,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"log"
 	"os"
+	"slices"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,6 +20,11 @@ type BoobaRepo struct {
 	ctx        context.Context
 	launchName string
 	bayanSHA   string
+}
+
+type ReqData struct {
+	Date     string `json:"date,omitempty"`
+	Requests int    `json:"requests,omitempty"`
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
@@ -66,7 +73,7 @@ func (r *BoobaRepo) GetBooba() (int, error) {
 }
 
 func (r *BoobaRepo) IncViews() {
-	err := r.rdb.Incr(r.ctx, r.launchName).Err()
+	err := r.rdb.HIncrBy(r.ctx, "stats:views", r.launchName, int64(1)).Err()
 	if err != nil {
 		log.Fatal("error incrementing views:", err)
 	}
@@ -125,4 +132,51 @@ func (r *BoobaRepo) GetStats() (int, int) {
 	}
 
 	return int(chats), int(priv)
+}
+
+func (r *BoobaRepo) GetRequests() []ReqData {
+	views := map[string]int{}
+	t := time.Now()
+	var dates []string
+	start := t.AddDate(0, 0, -8)
+	for ; t.After(start); t = t.AddDate(0, 0, -1) {
+		dates = append(dates, t.Format("02.01"))
+	}
+	slices.Reverse(dates)
+	for _, date := range dates {
+		views[date] = 0
+	}
+
+	keys, err := r.rdb.LRange(r.ctx, "Launches", 0, 100).Result()
+	if err != nil {
+		log.Fatal("error getting keys for launches:", err)
+	}
+
+	var value string
+	var nvalue int
+	var cur time.Time
+	var ok bool
+
+	for _, key := range keys {
+		value, err = r.rdb.HGet(r.ctx, "stats:views", key).Result()
+		if err != nil {
+			log.Fatal("error getting values for launches:", err)
+		}
+		nvalue, err = strconv.Atoi(value)
+		if err != nil {
+			log.Fatal("error parsing value:", err)
+		}
+
+		cut := strings.Split(key, "m=")[0]
+		cur, err = time.Parse("2006-01-02 15:04:05.000000000 -0700 UTC ", cut)
+		if _, ok = views[cur.Format("02.01")]; ok {
+			views[cur.Format("02.01")] += nvalue
+		}
+	}
+
+	var res []ReqData
+	for k, v := range views {
+		res = append(res, ReqData{k, v})
+	}
+	return res
 }

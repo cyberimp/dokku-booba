@@ -96,3 +96,7 @@ func PostTits(chatID int) {
 func GetStats() (int, int) {
 	return rep.GetStats()
 }
+
+func GetRequests() []repo.ReqData {
+	return rep.GetRequests()
+}
