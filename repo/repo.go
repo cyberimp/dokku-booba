@@ -168,7 +168,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 		}
 
 		cut := strings.Split(key, "m=")[0]
-		cur, err = time.Parse("2006-01-02 15:04:05.000000000 -0700 UTC ", cut)
+		cur, err = time.Parse("2006-01-02 15:04:05.00000000 -0700 UTC ", cut)
 		if err != nil {
 			log.Fatal("error parsing date:", err)
 		}
