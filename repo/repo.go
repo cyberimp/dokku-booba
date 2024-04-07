@@ -226,7 +226,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	hornyUsers, err := r.rdb.SCard(r.ctx, statsUsersTodayKey).Result()
 	todayS := today.Format("02.01")
 	tmp = views[todayS]
-	tmp[1] += int(hornyUsers)
+	tmp[1] = int(hornyUsers)
 	views[todayS] = tmp
 
 	var res []ReqData
