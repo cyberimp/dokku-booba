@@ -5,7 +5,7 @@
         "type": "startup",
         "name": "ready check",
         "description": "Checking if the app responds to the /hi endpoint",
-        "initialDelay": 60,
+        "initialDelay": 70,
         "timeout": 200,
         "path": "/hi",
         "content": "Hi",
