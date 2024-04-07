@@ -70,8 +70,10 @@ func (r *BoobaRepo) redisInit(content []int) {
 	}
 	pipe.SAdd(r.ctx, "booba:new", anyContent...)
 	pipe.Rename(r.ctx, "booba:new", "booba:active")
-	pipe.HIncrBy(r.ctx, statsUsersKey, lastLaunch, hornyUsers)
-	pipe.Del(r.ctx, statsUsersTodayKey)
+	if lastLaunch != today {
+		pipe.HIncrBy(r.ctx, statsUsersKey, lastLaunch, hornyUsers)
+		pipe.Del(r.ctx, statsUsersTodayKey)
+	}
 	_, err = pipe.Exec(r.ctx)
 	if err != nil {
 		log.Fatal("error adding data to redis:", err)
