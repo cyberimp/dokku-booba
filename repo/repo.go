@@ -21,6 +21,7 @@ const (
 	statsUsersKey      = "stats:users:perDay"
 	statsUsersTodayKey = "stats:users:today"
 	lastLaunchKey      = "last:launch"
+	dateFormat         = "06.02.01"
 )
 
 type BoobaRepo struct {
@@ -37,6 +38,7 @@ type ReqData struct {
 }
 
 func (r *BoobaRepo) redisInit(content []int) {
+	today := time.Now().Format(dateFormat)
 	r.launchName = time.Now().Format(time.DateTime)
 
 	r.ctx = context.Background()
@@ -52,7 +54,6 @@ func (r *BoobaRepo) redisInit(content []int) {
 		log.Fatal("error loading script:", err)
 	}
 
-	today := time.Now().Format("02.01")
 	lastLaunch, err := r.rdb.Get(r.ctx, lastLaunchKey).Result()
 	if err != nil {
 		lastLaunch = today
@@ -170,7 +171,7 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	var dates []string
 	start := t.AddDate(0, 0, -7)
 	for ; t.After(start); t = t.AddDate(0, 0, -1) {
-		dates = append(dates, t.Format("02.01"))
+		dates = append(dates, t.Format(dateFormat))
 	}
 	slices.Reverse(dates)
 	for _, date := range dates {
@@ -202,10 +203,10 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 		if err != nil {
 			log.Fatal("error parsing date:", err)
 		}
-		if _, ok = views[cur.Format("02.01")]; ok {
-			tmp = views[cur.Format("02.01")]
+		if _, ok = views[cur.Format(dateFormat)]; ok {
+			tmp = views[cur.Format(dateFormat)]
 			tmp[0] += nValue
-			views[cur.Format("02.01")] = tmp
+			views[cur.Format(dateFormat)] = tmp
 		}
 	}
 
@@ -224,14 +225,14 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 	}
 
 	hornyUsers, err := r.rdb.SCard(r.ctx, statsUsersTodayKey).Result()
-	todayS := today.Format("02.01")
+	todayS := today.Format(dateFormat)
 	tmp = views[todayS]
 	tmp[1] = int(hornyUsers)
 	views[todayS] = tmp
 
 	var res []ReqData
 	for _, v := range dates {
-		res = append(res, ReqData{v, views[v][0], views[v][1]})
+		res = append(res, ReqData{v[3:], views[v][0], views[v][1]})
 	}
 	return res
 }
