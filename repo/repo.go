@@ -167,9 +167,9 @@ func (r *BoobaRepo) GetStats() (int, int) {
 func (r *BoobaRepo) GetRequests() []ReqData {
 	views := map[string][2]int{}
 	today := time.Now()
-	t := today
+	t := today.AddDate(0, 0, -1)
 	var dates []string
-	start := t.AddDate(0, 0, -7)
+	start := t.AddDate(0, 0, -8)
 	for ; t.After(start); t = t.AddDate(0, 0, -1) {
 		dates = append(dates, t.Format(dateFormat))
 	}
@@ -223,12 +223,6 @@ func (r *BoobaRepo) GetRequests() []ReqData {
 		tmp[1] += nValue
 		views[k] = tmp
 	}
-
-	hornyUsers, err := r.rdb.SCard(r.ctx, statsUsersTodayKey).Result()
-	todayS := today.Format(dateFormat)
-	tmp = views[todayS]
-	tmp[1] += int(hornyUsers)
-	views[todayS] = tmp
 
 	var res []ReqData
 	for _, v := range dates {
