@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cyberimp/dokku-booba/tits"
-	_ "github.com/heroku/x/hmetrics/onload"
 	"io"
 	"log"
 	"net/http"
@@ -15,6 +13,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/cyberimp/dokku-booba/tits"
+	_ "github.com/heroku/x/hmetrics/onload"
 )
 
 type (
@@ -49,6 +50,7 @@ func handle(c chan os.Signal) {
 	}
 	for {
 		<-c
+
 		log.Print("Got SIGUSR1 from worker!")
 		tits.PostTits(chat)
 	}
