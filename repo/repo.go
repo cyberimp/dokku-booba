@@ -3,12 +3,13 @@ package repo
 import (
 	"context"
 	_ "embed"
-	"github.com/redis/go-redis/v9"
 	"log"
 	"os"
 	"slices"
 	"strconv"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 //go:embed bayan.lua
@@ -63,6 +64,7 @@ func (r *BoobaRepo) redisInit(content []int) {
 
 	pipe := r.rdb.TxPipeline()
 
+	pipe.LTrim(r.ctx, statsLaunchesKey, -10, -1)
 	pipe.LPush(r.ctx, statsLaunchesKey, r.launchName)
 
 	anyContent := make([]any, 0, len(content))
